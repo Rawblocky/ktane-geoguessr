@@ -1,0 +1,12 @@
+GeoGuessr 1.0
+Troublesome terms to tell the trained team-member.
+
+Module ID: geoGuessr
+
+Created by: Rawblocky
+
+Manual available here: https://ktane.timwi.de/HTML/GeoGuessr.html
+
+---
+Build 1.0 notes:
+- Initial release
