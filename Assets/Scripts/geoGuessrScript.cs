@@ -6,6 +6,10 @@ using KModkit;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
+using wawa.DDL;
+using wawa.IO;
+using wawa.Modules;
+using wawa.Schemas;
 
 [System.Serializable]
 public class Extra
@@ -80,9 +84,61 @@ public class geoGuessrScript : MonoBehaviour
     private string[] startingLocProperties;
 
     [SerializeField]
-    private TextAsset mapJsonFile;
+    private TextAsset ktaneManualLocs;
+
+    [SerializeField]
+    private TextAsset aawLocs;
+
+    [SerializeField]
+    private TextAsset aarwLocs;
+
+    [SerializeField]
+    private TextAsset intersectionGuessrLocs;
 
     private bool isBusy;
+
+    [Serializable]
+    public sealed class geoGuessrSettings
+    {
+        [TweaksSetting.Dropdown(
+            "The map of locations that can show up onto the module.",
+            "Map",
+            "KTaNE Manual",
+            "An Arbitrary World",
+            "An Arbitrary Rural World",
+            "IntersectionGuessr"
+        )]
+        public object geoGuessrMapUsed { get; set; }
+
+        [TweaksSetting.Checkbox(
+            "If enabled, all countries have an equal chance of appearing.",
+            "Degenerated distribution"
+        )]
+        public bool geoGuessrDegenerateLocations { get; set; }
+
+        [TweaksSetting.Dropdown(
+            "No Move will let you pan/zoom, while NMPZ will lock all movement.",
+            "Game Mode",
+            "No Move",
+            "NMPZ",
+            "Random"
+        )]
+        public object geoGuessrGamemode { get; set; }
+
+        public geoGuessrSettings()
+        {
+            this.geoGuessrMapUsed = "KTaNE Manual";
+            this.geoGuessrDegenerateLocations = false;
+            this.geoGuessrGamemode = "No Move";
+        }
+    }
+
+    private Config<geoGuessrSettings> moduleSettings;
+
+    static readonly TweaksEditorSettings TweaksEditorSettings = TweaksEditorSettings
+        .CreateListing("GeoGuessr", "geoGuessr")
+        .Register<geoGuessrSettings>()
+        .BuildAndClear();
 
     char[] alphabet = new char[]
     {
@@ -114,6 +170,10 @@ public class geoGuessrScript : MonoBehaviour
         'Z',
     };
 
+    private bool movingAllowed = false;
+    private bool panningAllowed = true;
+    private bool zoomingAllowed = true;
+
     // Logging
     static int moduleIdCounter = 1;
     int moduleId;
@@ -123,6 +183,40 @@ public class geoGuessrScript : MonoBehaviour
 
     void Awake()
     {
+        moduleSettings = new Config<geoGuessrSettings>("geoGuessr-settings.json");
+
+        if (
+            moduleSettings.Read().geoGuessrGamemode == "NMPZ"
+            || (
+                moduleSettings.Read().geoGuessrGamemode == "Random"
+                && UnityEngine.Random.Range(0, 1) == 1
+            )
+        )
+        {
+            panningAllowed = false;
+            zoomingAllowed = false;
+        }
+
+        if (!panningAllowed)
+        {
+            panCameraUpButton.gameObject.SetActive(false);
+            panCameraDownButton.gameObject.SetActive(false);
+            panCameraLeftButton.gameObject.SetActive(false);
+            panCameraRightButton.gameObject.SetActive(false);
+            streetViewCompassHL.gameObject.SetActive(false);
+        }
+        if (!zoomingAllowed)
+        {
+            zoomInButton.gameObject.SetActive(false);
+            zoomOutButton.gameObject.SetActive(false);
+            streetViewCompassHL.gameObject.SetActive(false);
+            streetViewCompass.transform.localPosition = new Vector3(-0.06675f, 0.0101f, -0.06675f);
+        }
+        if (!panningAllowed && !zoomingAllowed)
+        {
+            returnToStartButton.gameObject.SetActive(false);
+        }
+
         newMaterial = new Material(streetViewMaterial);
         streetViewBlock.GetComponent<Renderer>().material = newMaterial;
         moduleId = moduleIdCounter++;
@@ -213,11 +307,80 @@ public class geoGuessrScript : MonoBehaviour
 
     private IEnumerator LoadRandomLocation()
     {
-        Debug.LogFormat("[GeoGuessr #{0}] Fetching random location", moduleId);
-        string jsonData = mapJsonFile.text;
-        MapJson mapJson = JsonConvert.DeserializeObject<MapJson>(jsonData);
-        int randomIndex = UnityEngine.Random.Range(0, mapJson.customCoordinates.Count);
-        CustomCoordinate location = mapJson.customCoordinates[randomIndex];
+        string jsonData;
+        string mapUsed = moduleSettings.Read().geoGuessrMapUsed.ToString();
+        bool isDegenerated = moduleSettings.Read().geoGuessrDegenerateLocations;
+        Debug.LogFormat("[GeoGuessr #{0}] Fetching random '{1}' location", moduleId, mapUsed);
+        List<CustomCoordinate> customCoordinates = new List<CustomCoordinate>();
+        if (mapUsed == "An Arbitrary World")
+        {
+            customCoordinates = JsonConvert.DeserializeObject<List<CustomCoordinate>>(aawLocs.text);
+        }
+        else if (mapUsed == "An Arbitrary Rural World")
+        {
+            customCoordinates = JsonConvert.DeserializeObject<List<CustomCoordinate>>(
+                aarwLocs.text
+            );
+        }
+        else if (mapUsed == "IntersectionGuessr")
+        {
+            customCoordinates = JsonConvert.DeserializeObject<List<CustomCoordinate>>(
+                intersectionGuessrLocs.text
+            );
+        }
+        else
+        {
+            MapJson mapJson = JsonConvert.DeserializeObject<MapJson>(ktaneManualLocs.text);
+            customCoordinates = mapJson.customCoordinates;
+        }
+
+        CustomCoordinate location = customCoordinates[
+            UnityEngine.Random.Range(0, customCoordinates.Count)
+        ];
+        if (isDegenerated)
+        {
+            Debug.LogFormat(
+                "[GeoGuessr #{0}] 'Degenerated Distribution' is turned on | Picking a random country",
+                moduleId,
+                mapUsed
+            );
+
+            List<string> countryCodesList = new List<string>();
+            Dictionary<string, List<CustomCoordinate>> countryCodeDictionary =
+                new Dictionary<string, List<CustomCoordinate>>();
+
+            foreach (var customCoordinate in customCoordinates)
+            {
+                if (!countryCodesList.Contains(customCoordinate.extra.tags[0]))
+                {
+                    countryCodesList.Add(customCoordinate.extra.tags[0]);
+                }
+
+                if (!countryCodeDictionary.ContainsKey(customCoordinate.extra.tags[0]))
+                {
+                    countryCodeDictionary[customCoordinate.extra.tags[0]] =
+                        new List<CustomCoordinate>();
+                }
+
+                countryCodeDictionary[customCoordinate.extra.tags[0]].Add(customCoordinate);
+            }
+
+            string[] countryCodes = countryCodesList.ToArray();
+            string randomCountryCode = countryCodesList[
+                UnityEngine.Random.Range(0, countryCodesList.Count)
+            ];
+            List<CustomCoordinate> countryCoordinates;
+            if (countryCodeDictionary.TryGetValue(randomCountryCode, out countryCoordinates))
+            {
+                if (countryCoordinates.Count > 0)
+                {
+                    location = countryCoordinates[
+                        UnityEngine.Random.Range(0, countryCoordinates.Count)
+                    ];
+                }
+            }
+        }
+
         string[] locProperties = new string[]
         {
             location.extra.tags[0],
@@ -377,8 +540,7 @@ public class geoGuessrScript : MonoBehaviour
 
     void onLetterButtonPressed(TextMesh letter, int offset, KMSelectable button)
     {
-        GetComponent<KMAudio>()
-            .PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, transform);
+        SoundCore.Play(Sound.ButtonPress, GetComponent<KMAudio>(), transform);
         char currentLetter = letter.text[0];
         int currentIndex = System.Array.IndexOf(alphabet, currentLetter);
 
@@ -395,12 +557,16 @@ public class geoGuessrScript : MonoBehaviour
 
     private IEnumerator incrementZoom(float amount)
     {
-        if (locPropertiesCache == null || locPropertiesCache.Length < 5 || isBusy)
+        if (
+            locPropertiesCache == null
+            || locPropertiesCache.Length < 5
+            || isBusy
+            || !zoomingAllowed
+        )
         {
             yield break;
         }
-        GetComponent<KMAudio>()
-            .PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, transform);
+        SoundCore.Play(Sound.ButtonPress, GetComponent<KMAudio>(), transform);
         float currentZoom = Mathf.Round(float.Parse(locPropertiesCache[4]));
         float newZoom = Mathf.Clamp((float)currentZoom + amount, 0, 4);
         CustomCoordinate location = new CustomCoordinate
@@ -429,12 +595,16 @@ public class geoGuessrScript : MonoBehaviour
 
     private IEnumerator panCamera(float headingIncrement, float yawIncrement)
     {
-        if (locPropertiesCache == null || locPropertiesCache.Length < 5 || isBusy)
+        if (
+            locPropertiesCache == null
+            || locPropertiesCache.Length < 5
+            || isBusy
+            || !panningAllowed
+        )
         {
             yield break;
         }
-        GetComponent<KMAudio>()
-            .PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, transform);
+        SoundCore.Play(Sound.ButtonPress, GetComponent<KMAudio>(), transform);
         float currentZoom = float.Parse(locPropertiesCache[4]);
         float currentHeading = float.Parse(locPropertiesCache[2]);
         float currentYaw = float.Parse(locPropertiesCache[3]);
@@ -452,9 +622,9 @@ public class geoGuessrScript : MonoBehaviour
         }
         else if (newZoom <= 2)
         {
-            multiplier = 15f;
+            multiplier = 45f;
         }
-        else if (newZoom <= 2)
+        else if (newZoom <= 3)
         {
             multiplier = 15f;
         }
@@ -494,12 +664,17 @@ public class geoGuessrScript : MonoBehaviour
 
     private IEnumerator faceNorth()
     {
-        if (locPropertiesCache == null || locPropertiesCache.Length < 5 || isBusy)
+        if (
+            locPropertiesCache == null
+            || locPropertiesCache.Length < 5
+            || isBusy
+            || !panningAllowed
+            || !zoomingAllowed
+        )
         {
             yield break;
         }
-        GetComponent<KMAudio>()
-            .PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, transform);
+        SoundCore.Play(Sound.ButtonPress, GetComponent<KMAudio>(), transform);
         CustomCoordinate location = new CustomCoordinate
         {
             extra = new Extra { tags = { correctCountryCode } },
@@ -527,10 +702,11 @@ public class geoGuessrScript : MonoBehaviour
 
     private IEnumerator returnToStart()
     {
-        if (startingLocProperties == null || startingLocProperties.Length < 5)
+        if (startingLocProperties == null || startingLocProperties.Length < 5 || isBusy)
         {
             yield break;
         }
+        SoundCore.Play(Sound.ButtonPress, GetComponent<KMAudio>(), transform);
         yield return StartCoroutine(SetLocation(startingLocProperties));
     }
 
@@ -538,7 +714,7 @@ public class geoGuessrScript : MonoBehaviour
     {
         Debug.LogFormat("[GeoGuessr #{0}] Guessed {1}", moduleId, GetCountryCodeInput());
         guessButton.AddInteractionPunch();
-        audio.PlaySoundAtTransform(sounds[0].name, transform);
+        SoundCore.Play(SoundCore.ToSound(sounds[0]), GetComponent<KMAudio>(), transform);
         setTabVisible(streetViewTab, true);
         setTabVisible(guessTab, false);
         if (GetCountryCodeInput() != correctCountryCode)
@@ -559,13 +735,12 @@ public class geoGuessrScript : MonoBehaviour
         Debug.LogFormat("[GeoGuessr #{0}] Module solved", moduleId);
         GetComponent<KMBombModule>().HandlePass();
         moduleSolved = true;
-        audio.PlaySoundAtTransform(sounds[2].name, transform);
+        SoundCore.Play(SoundCore.ToSound(sounds[1]), GetComponent<KMAudio>(), transform);
     }
 
     void setToMap()
     {
-        GetComponent<KMAudio>()
-            .PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, transform);
+        SoundCore.Play(Sound.ButtonPress, GetComponent<KMAudio>(), transform);
         openMapButton.AddInteractionPunch(0.1f);
         setTabVisible(streetViewTab, false);
         setTabVisible(guessTab, true);
@@ -573,8 +748,7 @@ public class geoGuessrScript : MonoBehaviour
 
     void setToStreetView()
     {
-        GetComponent<KMAudio>()
-            .PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.BigButtonPress, transform);
+        SoundCore.Play(Sound.ButtonPress, GetComponent<KMAudio>(), transform);
         openStreetViewButton.AddInteractionPunch(0.1f);
         setTabVisible(streetViewTab, true);
         setTabVisible(guessTab, false);

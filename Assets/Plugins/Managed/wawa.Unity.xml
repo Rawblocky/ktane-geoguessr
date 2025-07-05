@@ -375,12 +375,14 @@
         </member>
         <member name="T:System.Runtime.CompilerServices.InterceptsLocationAttribute">
             <summary>Indicates that a location is intercepted by this method.</summary>
-            <param name="filePath">The file path to the intercepted location.</param>
-            <param name="line">The line number to the intercepted location.</param>
-            <param name="character">The character number to the intercepted location.</param>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.InterceptsLocationAttribute.#ctor(System.Int32,System.String)">
+            <summary>Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.InterceptsLocationAttribute" /> class.</summary>
+            <param name="version">The version number of the encoding data.</param>
+            <param name="data">The opaque data string.</param>
         </member>
         <member name="M:System.Runtime.CompilerServices.InterceptsLocationAttribute.#ctor(System.String,System.Int32,System.Int32)">
-            <summary>Indicates that a location is intercepted by this method.</summary>
+            <summary>Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.InterceptsLocationAttribute" /> class.</summary>
             <param name="filePath">The file path to the intercepted location.</param>
             <param name="line">The line number to the intercepted location.</param>
             <param name="character">The character number to the intercepted location.</param>
@@ -860,10 +862,34 @@
         <member name="T:Emik.MatchAttribute">
             <summary>Declares a contract that the generic parameter must include the qualified member.</summary>
         </member>
+        <member name="M:Emik.MatchAttribute.#ctor(System.String)">
+            <summary>Initializes a new instance of the <see cref="T:Emik.MatchAttribute" /> class.</summary>
+            <param name="pattern">The regular expression pattern to match.</param>
+        </member>
         <member name="M:Emik.MatchAttribute.#ctor(System.String,System.Text.RegularExpressions.RegexOptions)">
             <summary>Initializes a new instance of the <see cref="T:Emik.MatchAttribute" /> class.</summary>
             <param name="pattern">The regular expression pattern to match.</param>
             <param name="options">The bitwise combination of the enumeration values that modify the regular expression.</param>
+        </member>
+        <member name="M:Emik.MatchAttribute.#ctor(System.String,System.Boolean)">
+            <summary>Initializes a new instance of the <see cref="T:Emik.MatchAttribute" /> class.</summary>
+            <param name="pattern">The regular expression pattern to match.</param>
+            <param name="allowRuntimeValues">The value determining whether to allow runtime values, instead of raising a warning.</param>
+        </member>
+        <member name="M:Emik.MatchAttribute.#ctor(System.String,System.Boolean,System.Text.RegularExpressions.RegexOptions)">
+            <summary>Initializes a new instance of the <see cref="T:Emik.MatchAttribute" /> class.</summary>
+            <param name="pattern">The regular expression pattern to match.</param>
+            <param name="allowRuntimeValues">The value determining whether to allow runtime values, instead of raising a warning.</param>
+            <param name="options">The bitwise combination of the enumeration values that modify the regular expression.</param>
+        </member>
+        <member name="M:Emik.MatchAttribute.#ctor(System.String,System.Text.RegularExpressions.RegexOptions,System.Boolean)">
+            <summary>Initializes a new instance of the <see cref="T:Emik.MatchAttribute" /> class.</summary>
+            <param name="pattern">The regular expression pattern to match.</param>
+            <param name="options">The bitwise combination of the enumeration values that modify the regular expression.</param>
+            <param name="allowRuntimeValues">The value determining whether to allow runtime values, instead of raising a warning.</param>
+        </member>
+        <member name="P:Emik.MatchAttribute.AllowRuntimeValues">
+            <summary>Gets the value determining whether to allow runtime values, instead of raising a warning.</summary>
         </member>
         <member name="P:Emik.MatchAttribute.Pattern">
             <summary>Gets the regular expression to match.</summary>
