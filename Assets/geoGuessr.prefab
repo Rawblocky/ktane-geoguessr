@@ -4169,7 +4169,46 @@ MonoBehaviour:
   streetViewTab: {fileID: 1137506162026868}
   guessTab: {fileID: 1362593611403850}
   streetViewMaterial: {fileID: 2100000, guid: 3373b3c5f25f78a4da4cfecc29e00020, type: 2}
-  svTextures: []
+  svTextures:
+  - {fileID: 2800000, guid: e398f287dbb584642bccf368de90c6e7, type: 3}
+  - {fileID: 2800000, guid: fb78742e2bf0f4e448bb797423333e68, type: 3}
+  - {fileID: 2800000, guid: 29802bddb4d50f14f95f86914446a1c9, type: 3}
+  - {fileID: 2800000, guid: 5c50a4b4b2e50754d8b7ba2a103d495c, type: 3}
+  - {fileID: 2800000, guid: 23334f70c428786488f7cfda282632a4, type: 3}
+  - {fileID: 2800000, guid: 248df23391e5ba94ea7e23b5ec9ebfe1, type: 3}
+  - {fileID: 2800000, guid: 44c23048dbf32da4a9d6a36f7861b042, type: 3}
+  - {fileID: 2800000, guid: 47a860d420bb52048a1217666be2f4d2, type: 3}
+  - {fileID: 2800000, guid: 911edea0d83e11c478d29d3c8eed402e, type: 3}
+  - {fileID: 2800000, guid: e9c3c85125e45e44886670bb147fa96e, type: 3}
+  - {fileID: 2800000, guid: 63de98725b9cdfb43b8806e14ed2718a, type: 3}
+  - {fileID: 2800000, guid: 4b11d55ae753e6d42b6e54f3a7df545b, type: 3}
+  - {fileID: 2800000, guid: 420bbe3cbb8814245b30f8e759de39c6, type: 3}
+  - {fileID: 2800000, guid: 8aab0f74d9c4ffa478165ea70611d8d5, type: 3}
+  - {fileID: 2800000, guid: ee38622a85a22b24fafb7787b3ca3c0d, type: 3}
+  - {fileID: 2800000, guid: cc366ed5e627a7f4894502a36f33743c, type: 3}
+  - {fileID: 2800000, guid: cbbf3f375455bbf42b6c91cdb1410928, type: 3}
+  - {fileID: 2800000, guid: 11576dd4bc4cef44cb62c1927175c20b, type: 3}
+  - {fileID: 2800000, guid: 2438f135eeadb124991c8e58bb34f10f, type: 3}
+  - {fileID: 2800000, guid: 40f29687d5902384ca49653767255ad1, type: 3}
+  - {fileID: 2800000, guid: faab99408a2295940bff04aa975d42f5, type: 3}
+  - {fileID: 2800000, guid: 4cd2bd53b4a3c2248ac9e9a613aa2a70, type: 3}
+  - {fileID: 2800000, guid: 91d80ac763258e5478232782340697a6, type: 3}
+  - {fileID: 2800000, guid: 3db15e034ab91b24d8ac961cc0ecee88, type: 3}
+  - {fileID: 2800000, guid: 24d8a52838d54bc47a732dc229ce4a68, type: 3}
+  - {fileID: 2800000, guid: 2e3b1a90da69c5a4a8d05aaa98439a0e, type: 3}
+  - {fileID: 2800000, guid: 0ceff8e142eb3e24ca109ac794add7eb, type: 3}
+  - {fileID: 2800000, guid: 1522585b314a9644ea4eb91ad6d0ad10, type: 3}
+  - {fileID: 2800000, guid: 4474d0e1f52960544b4aa9c8a03ae54b, type: 3}
+  - {fileID: 2800000, guid: 5aee665cc48b478489ea6965c06bfe68, type: 3}
+  - {fileID: 2800000, guid: 887cbdea0c5858a419301e78abc5cbfc, type: 3}
+  - {fileID: 2800000, guid: 4ce86a43731041b4283d1538cc32c349, type: 3}
+  - {fileID: 2800000, guid: 821433bd0815d014880e75f653576dc8, type: 3}
+  - {fileID: 2800000, guid: d2a1498c947fd664a8074c955ed951d6, type: 3}
+  - {fileID: 2800000, guid: d6f7b1d10fb42274bbfbd8bf9349a984, type: 3}
+  - {fileID: 2800000, guid: ed3d9e57920a4054abbef8c2c2dd9318, type: 3}
+  - {fileID: 2800000, guid: afc4bdf6626c0be42bf6d67362deda19, type: 3}
+  - {fileID: 2800000, guid: 3a7c491d9cc858e4087c40254f54642d, type: 3}
+  - {fileID: 2800000, guid: 340a85d1c1114ef42847b75e9b5911ea, type: 3}
   streetViewBlock: {fileID: 1167460070944760}
   streetViewCompass: {fileID: 114993931163387150}
   streetViewCompassHL: {fileID: 114287817237231642}

@@ -181,22 +181,8 @@ public class geoGuessrScript : MonoBehaviour
 
     Material newMaterial;
 
-    void Awake()
+    void SetHUDByGamemode()
     {
-        moduleSettings = new Config<geoGuessrSettings>("geoGuessr-settings.json");
-
-        if (
-            moduleSettings.Read().geoGuessrGamemode == "NMPZ"
-            || (
-                moduleSettings.Read().geoGuessrGamemode == "Random"
-                && UnityEngine.Random.Range(0, 1) == 1
-            )
-        )
-        {
-            panningAllowed = false;
-            zoomingAllowed = false;
-        }
-
         if (!panningAllowed)
         {
             panCameraUpButton.gameObject.SetActive(false);
@@ -216,6 +202,25 @@ public class geoGuessrScript : MonoBehaviour
         {
             returnToStartButton.gameObject.SetActive(false);
         }
+    }
+
+    void Awake()
+    {
+        moduleSettings = new Config<geoGuessrSettings>("geoGuessr-settings.json");
+
+        if (
+            moduleSettings.Read().geoGuessrGamemode == "NMPZ"
+            || (
+                moduleSettings.Read().geoGuessrGamemode == "Random"
+                && UnityEngine.Random.Range(0, 1) == 1
+            )
+        )
+        {
+            panningAllowed = false;
+            zoomingAllowed = false;
+        }
+
+        SetHUDByGamemode();
 
         newMaterial = new Material(streetViewMaterial);
         streetViewBlock.GetComponent<Renderer>().material = newMaterial;
@@ -451,6 +456,9 @@ public class geoGuessrScript : MonoBehaviour
                 "[GeoGuessr #{0}] Could not download texture online; fallbacking to local panorama",
                 moduleId
             );
+            panningAllowed = false;
+            zoomingAllowed = false;
+            SetHUDByGamemode();
             int randomIndex = UnityEngine.Random.Range(0, svTextures.Count);
             Texture randomTexture = svTextures[randomIndex];
             newMaterial.mainTexture = randomTexture;
@@ -494,7 +502,7 @@ public class geoGuessrScript : MonoBehaviour
             );
         }
 
-        if (isOnline)
+        if (isOnline || locPropertiesCache == null)
         {
             locPropertiesCache = locProperties;
         }
