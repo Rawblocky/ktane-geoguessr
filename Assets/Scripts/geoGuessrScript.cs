@@ -209,10 +209,10 @@ public class geoGuessrScript : MonoBehaviour
         moduleSettings = new Config<geoGuessrSettings>("geoGuessr-settings.json");
 
         if (
-            moduleSettings.Read().geoGuessrGamemode == "NMPZ"
+            moduleSettings.Read().geoGuessrGamemode.ToString() == "NMPZ"
             || (
-                moduleSettings.Read().geoGuessrGamemode == "Random"
-                && UnityEngine.Random.Range(0, 1) == 1
+                moduleSettings.Read().geoGuessrGamemode.ToString() == "Random"
+                && UnityEngine.Random.Range(0, 2) == 1
             )
         )
         {
