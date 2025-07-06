@@ -16,7 +16,7 @@ MonoBehaviour:
   author: Rawblocky
   description: "GeoGuessr 1.0\r\nTroublesome terms to tell the trained team-member.\r\n\r\nModule
     ID: geoGuessr\r\n\r\nCreated by: Rawblocky\r\n\r\nManual available here: https://ktane.timwi.de/HTML/GeoGuessr.html"
-  version: 
+  version: 1.0
   outputFolder: C:\Program Files (x86)\Steam\steamapps\common\Keep Talking and Nobody
     Explodes\mods
   previewImage: {fileID: 0}

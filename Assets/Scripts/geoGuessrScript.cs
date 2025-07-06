@@ -51,6 +51,11 @@ public class geoGuessrScript : MonoBehaviour
     public GameObject streetViewTab;
     public GameObject guessTab;
 
+    public GameObject loadingTab;
+    public GameObject loadingBackground;
+    public GameObject loadingBackgroundTransparent;
+    public GameObject loadingSpinner;
+
     public Material streetViewMaterial;
 
     public List<Texture> svTextures = new List<Texture>();
@@ -82,6 +87,9 @@ public class geoGuessrScript : MonoBehaviour
     private static Dictionary<string, Texture2D> textureCache = new Dictionary<string, Texture2D>();
     private string[] locPropertiesCache;
     private string[] startingLocProperties;
+
+    [SerializeField]
+    private TextAsset countriesListRaw;
 
     [SerializeField]
     private TextAsset ktaneManualLocs;
@@ -175,6 +183,7 @@ public class geoGuessrScript : MonoBehaviour
     private bool zoomingAllowed = true;
 
     // Logging
+    Dictionary<string, string> countriesList = new Dictionary<string, string>();
     static int moduleIdCounter = 1;
     int moduleId;
     private bool moduleSolved;
@@ -225,9 +234,6 @@ public class geoGuessrScript : MonoBehaviour
         newMaterial = new Material(streetViewMaterial);
         streetViewBlock.GetComponent<Renderer>().material = newMaterial;
         moduleId = moduleIdCounter++;
-
-        setTabVisible(streetViewTab, true);
-        setTabVisible(guessTab, false);
 
         openMapButton.OnInteract += delegate()
         {
@@ -286,9 +292,6 @@ public class geoGuessrScript : MonoBehaviour
             return false;
         };
 
-        // Load location
-        StartCoroutine(LoadRandomLocation());
-
         // Handle letter buttons
 
         for (int i = 0; i < letters.Length; i++)
@@ -308,11 +311,26 @@ public class geoGuessrScript : MonoBehaviour
                 return false;
             };
         }
+
+        countriesList = JsonConvert.DeserializeObject<Dictionary<string, string>>(
+            countriesListRaw.text
+        );
+    }
+
+    void Update()
+    {
+        if (loadingTab.activeSelf)
+        {
+            loadingSpinner.transform.localRotation *= Quaternion.Euler(0, 180f * Time.deltaTime, 0);
+        }
+        else
+        {
+            loadingSpinner.transform.localRotation = Quaternion.Euler(0, 180, 0);
+        }
     }
 
     private IEnumerator LoadRandomLocation()
     {
-        string jsonData;
         string mapUsed = moduleSettings.Read().geoGuessrMapUsed.ToString();
         bool isDegenerated = moduleSettings.Read().geoGuessrDegenerateLocations;
         Debug.LogFormat("[GeoGuessr #{0}] Fetching random '{1}' location", moduleId, mapUsed);
@@ -370,7 +388,6 @@ public class geoGuessrScript : MonoBehaviour
                 countryCodeDictionary[customCoordinate.extra.tags[0]].Add(customCoordinate);
             }
 
-            string[] countryCodes = countryCodesList.ToArray();
             string randomCountryCode = countryCodesList[
                 UnityEngine.Random.Range(0, countryCodesList.Count)
             ];
@@ -432,12 +449,13 @@ public class geoGuessrScript : MonoBehaviour
     )
     {
         newMaterial.SetColor("_Color", new Color(0.5f, 0.5f, 0.5f));
+        setTabVisible(loadingTab, true);
         Texture2D cachedTexture;
         if (textureCache.TryGetValue(url, out cachedTexture))
         {
             newMaterial.mainTexture = cachedTexture;
-            Debug.LogFormat("[GeoGuessr #{0}] Loaded texture from cache", moduleId);
-            SetLocationSettings(locProperties, true);
+            Debug.LogFormat("[GeoGuessr #{0}] Loaded image from cache", moduleId);
+            SetLocationSettings(locProperties, true, null);
             yield break;
         }
 
@@ -450,10 +468,14 @@ public class geoGuessrScript : MonoBehaviour
             {
                 isBusy = false;
                 newMaterial.SetColor("_Color", new Color(1, 1, 1));
+                openMapButton.gameObject.SetActive(true);
+                setTabVisible(loadingTab, false);
+                loadingBackground.gameObject.SetActive(false);
+                loadingBackgroundTransparent.gameObject.SetActive(true);
                 yield break;
             }
             Debug.LogFormat(
-                "[GeoGuessr #{0}] Could not download texture online; fallbacking to local panorama",
+                "[GeoGuessr #{0}] Could not download image online; fallbacking to local panorama",
                 moduleId
             );
             panningAllowed = false;
@@ -471,35 +493,49 @@ public class geoGuessrScript : MonoBehaviour
                 randomTextureName
             );
             locProperties = randomTextureName.Split('#');
-            SetLocationSettings(locProperties, false);
+            SetLocationSettings(locProperties, false, null);
             yield break;
         }
 
         Texture2D texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
         textureCache[url] = texture;
         newMaterial.mainTexture = texture;
-        Debug.LogFormat("[GeoGuessr #{0}] Loaded texture online", moduleId);
-        SetLocationSettings(locProperties, true);
+        Debug.LogFormat("[GeoGuessr #{0}] Loaded image online", moduleId);
+        SetLocationSettings(locProperties, true, url);
     }
 
-    void SetLocationSettings(string[] locProperties, bool isOnline)
+    void SetLocationSettings(string[] locProperties, bool isOnline, string url)
     {
         if (correctCountryCode == null)
         {
             correctCountryCode = locProperties[0];
             Debug.LogFormat(
-                "[GeoGuessr #{0}] Correct country code: {1}",
+                "[GeoGuessr #{0}] Correct country: [{1}] {2}",
                 moduleId,
-                correctCountryCode
+                correctCountryCode,
+                countriesList.ContainsKey(correctCountryCode)
+                    ? countriesList[correctCountryCode]
+                    : "Unknown Country"
             );
-            Debug.LogFormat(
-                "[GeoGuessr #{0}] Panorama URL: https://www.google.com/maps/@?api=1&map_action=pano&pano={1}&heading={2}&pitch={3}&zoom={4}",
-                moduleId,
+            string googleMapsLink = String.Format(
+                "https://www.google.com/maps/@?api=1&map_action=pano&pano={0}&heading={1}&pitch={2}&zoom={3}",
                 locProperties[1],
                 locProperties[2],
                 locProperties[3],
                 locProperties[4]
             );
+
+            Debug.LogFormat("[GeoGuessr #{0}] Panorama URL: {1}", moduleId, googleMapsLink);
+            if (url != null)
+            {
+                Debug.LogFormat(
+                    "[GeoGuessr #{0}] <a href='{1}' target='_blank'><img src='{2}' alt='{3}'/></a>",
+                    moduleId,
+                    googleMapsLink,
+                    url,
+                    correctCountryCode
+                );
+            }
         }
 
         if (isOnline || locPropertiesCache == null)
@@ -519,16 +555,11 @@ public class geoGuessrScript : MonoBehaviour
             streetViewCompassHL.transform.localRotation = Quaternion.Euler(0, -(180 - angle), 0);
         }
 
-        CustomCoordinate location = new CustomCoordinate
-        {
-            extra = new Extra { tags = { correctCountryCode } },
-            panoId = locPropertiesCache[1],
-            heading = float.Parse(locPropertiesCache[2]),
-            pitch = float.Parse(locPropertiesCache[3]),
-            zoom = float.Parse(locPropertiesCache[4]),
-        };
-
         newMaterial.SetColor("_Color", new Color(1, 1, 1));
+        openMapButton.gameObject.SetActive(true);
+        setTabVisible(loadingTab, false);
+        loadingBackground.gameObject.SetActive(false);
+        loadingBackgroundTransparent.gameObject.SetActive(true);
         isBusy = false;
     }
 
@@ -544,7 +575,13 @@ public class geoGuessrScript : MonoBehaviour
         return combinedText;
     }
 
-    void Start() { }
+    void Start()
+    {
+        setToStreetView();
+        openMapButton.gameObject.SetActive(false);
+        loadingBackgroundTransparent.gameObject.SetActive(false);
+        StartCoroutine(LoadRandomLocation());
+    }
 
     void onLetterButtonPressed(TextMesh letter, int offset, KMSelectable button)
     {
@@ -720,7 +757,7 @@ public class geoGuessrScript : MonoBehaviour
 
     void onGuess()
     {
-        Debug.LogFormat("[GeoGuessr #{0}] Guessed {1}", moduleId, GetCountryCodeInput());
+        Debug.LogFormat("[GeoGuessr #{0}] Guessed: {1}", moduleId, GetCountryCodeInput());
         guessButton.AddInteractionPunch();
         SoundCore.Play(SoundCore.ToSound(sounds[0]), GetComponent<KMAudio>(), transform);
         setTabVisible(streetViewTab, true);
@@ -765,14 +802,14 @@ public class geoGuessrScript : MonoBehaviour
 
     void setTabVisible(GameObject tab, bool isVisible)
     {
-        // tab.SetActive(isVisible);
-        if (isVisible)
-        {
-            tab.transform.localPosition = new Vector3(0, 0, 0);
-        }
-        else
-        {
-            tab.transform.localPosition = new Vector3(2000, 2000, 2000);
-        }
+        tab.gameObject.SetActive(isVisible);
+        // if (isVisible)
+        // {
+        //     tab.transform.localPosition = new Vector3(0, 0, 0);
+        // }
+        // else
+        // {
+        //     tab.transform.localPosition = new Vector3(2000, 2000, 2000);
+        // }
     }
 }
