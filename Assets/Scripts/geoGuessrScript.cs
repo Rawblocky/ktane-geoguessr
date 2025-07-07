@@ -242,7 +242,7 @@ public class geoGuessrScript : MonoBehaviour
         };
         guessButton.OnInteract += delegate()
         {
-            onGuess();
+            guess(GetCountryCodeInput());
             return false;
         };
         openStreetViewButton.OnInteract += delegate()
@@ -333,7 +333,11 @@ public class geoGuessrScript : MonoBehaviour
     {
         string mapUsed = moduleSettings.Read().geoGuessrMapUsed.ToString();
         bool isDegenerated = moduleSettings.Read().geoGuessrDegenerateLocations;
-        Debug.LogFormat("[GeoGuessr #{0}] Fetching random '{1}' location", moduleId, mapUsed);
+        Debug.LogFormat(
+            "[GeoGuessr #{0}] Fetching random location from '{1}' map",
+            moduleId,
+            mapUsed
+        );
         List<CustomCoordinate> customCoordinates = new List<CustomCoordinate>();
         if (mapUsed == "An Arbitrary World")
         {
@@ -438,7 +442,7 @@ public class geoGuessrScript : MonoBehaviour
             location.pitch * -1,
             fov
         );
-        Debug.LogFormat("[GeoGuessr #{0}] Downloading texture", moduleId);
+        Debug.LogFormat("[GeoGuessr #{0}] Downloading image", moduleId);
         yield return StartCoroutine(DownloadTexture(url, locProperties, true));
     }
 
@@ -454,7 +458,7 @@ public class geoGuessrScript : MonoBehaviour
         if (textureCache.TryGetValue(url, out cachedTexture))
         {
             newMaterial.mainTexture = cachedTexture;
-            Debug.LogFormat("[GeoGuessr #{0}] Loaded image from cache", moduleId);
+            Debug.LogFormat("[GeoGuessr #{0}] Loaded cached image", moduleId);
             SetLocationSettings(locProperties, true, null);
             yield break;
         }
@@ -475,8 +479,9 @@ public class geoGuessrScript : MonoBehaviour
                 yield break;
             }
             Debug.LogFormat(
-                "[GeoGuessr #{0}] Could not download image online; fallbacking to local panorama",
-                moduleId
+                "[GeoGuessr #{0}] Could not download panoId {1}; fallbacking to local panorama",
+                moduleId,
+                locProperties[1]
             );
             panningAllowed = false;
             zoomingAllowed = false;
@@ -488,8 +493,9 @@ public class geoGuessrScript : MonoBehaviour
             string randomTextureName = randomTexture.name;
 
             Debug.LogFormat(
-                "[GeoGuessr #{0}] Loaded local image: {1}",
+                "[GeoGuessr #{0}] Loaded panoId {1}: {2}",
                 moduleId,
+                locProperties[1],
                 randomTextureName
             );
             locProperties = randomTextureName.Split('#');
@@ -500,7 +506,7 @@ public class geoGuessrScript : MonoBehaviour
         Texture2D texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
         textureCache[url] = texture;
         newMaterial.mainTexture = texture;
-        Debug.LogFormat("[GeoGuessr #{0}] Loaded image online", moduleId);
+        Debug.LogFormat("[GeoGuessr #{0}] Loaded online image", moduleId);
         SetLocationSettings(locProperties, true, url);
     }
 
@@ -510,12 +516,12 @@ public class geoGuessrScript : MonoBehaviour
         {
             correctCountryCode = locProperties[0];
             Debug.LogFormat(
-                "[GeoGuessr #{0}] Correct country: [{1}] {2}",
+                "[GeoGuessr #{0}] Correct country: {1} ({2})",
                 moduleId,
                 correctCountryCode,
                 countriesList.ContainsKey(correctCountryCode)
                     ? countriesList[correctCountryCode]
-                    : "Unknown Country"
+                    : "Invalid country code"
             );
             string googleMapsLink = String.Format(
                 "https://www.google.com/maps/@?api=1&map_action=pano&pano={0}&heading={1}&pitch={2}&zoom={3}",
@@ -528,13 +534,7 @@ public class geoGuessrScript : MonoBehaviour
             Debug.LogFormat("[GeoGuessr #{0}] Panorama URL: {1}", moduleId, googleMapsLink);
             if (url != null)
             {
-                Debug.LogFormat(
-                    "[GeoGuessr #{0}] <a href='{1}' target='_blank'><img src='{2}' alt='{3}'/></a>",
-                    moduleId,
-                    googleMapsLink,
-                    url,
-                    correctCountryCode
-                );
+                Debug.LogFormat("[GeoGuessr #{0}] Image link: {1}", moduleId, url);
             }
         }
 
@@ -655,7 +655,7 @@ public class geoGuessrScript : MonoBehaviour
         float currentYaw = float.Parse(locPropertiesCache[3]);
         float newZoom = Mathf.Clamp(RoundToNearest((float)currentZoom, 1), 0, 4);
 
-        float multiplier = 15f;
+        float multiplier = 5f;
 
         if (newZoom <= 0)
         {
@@ -672,6 +672,10 @@ public class geoGuessrScript : MonoBehaviour
         else if (newZoom <= 3)
         {
             multiplier = 15f;
+        }
+        else if (newZoom <= 4)
+        {
+            multiplier = 5f;
         }
 
         if (headingIncrement != 0f)
@@ -755,14 +759,22 @@ public class geoGuessrScript : MonoBehaviour
         yield return StartCoroutine(SetLocation(startingLocProperties));
     }
 
-    void onGuess()
+    void guess(string guessedCountryCode)
     {
-        Debug.LogFormat("[GeoGuessr #{0}] Guessed: {1}", moduleId, GetCountryCodeInput());
+        Debug.LogFormat(
+            "[GeoGuessr #{0}] Guessed: {1} ({2})",
+            moduleId,
+            guessedCountryCode,
+            countriesList.ContainsKey(guessedCountryCode)
+                ? countriesList[guessedCountryCode]
+                : "Invalid country code"
+        );
+
         guessButton.AddInteractionPunch();
         SoundCore.Play(SoundCore.ToSound(sounds[0]), GetComponent<KMAudio>(), transform);
         setTabVisible(streetViewTab, true);
         setTabVisible(guessTab, false);
-        if (GetCountryCodeInput() != correctCountryCode)
+        if (guessedCountryCode != correctCountryCode)
         {
             Debug.LogFormat(
                 "[GeoGuessr #{0}] Strike! Incorrect guess",
@@ -803,13 +815,96 @@ public class geoGuessrScript : MonoBehaviour
     void setTabVisible(GameObject tab, bool isVisible)
     {
         tab.gameObject.SetActive(isVisible);
-        // if (isVisible)
-        // {
-        //     tab.transform.localPosition = new Vector3(0, 0, 0);
-        // }
-        // else
-        // {
-        //     tab.transform.localPosition = new Vector3(2000, 2000, 2000);
-        // }
+    }
+
+    private readonly string TwitchHelpMessage =
+        @"Use '!{0} guess <country-code>' to guess. Use '!{0} pan left/down/up/right' to pan the panorama. Use '!{0} zoom in/out' to zoom in or out. Use '!{0} north' to face the panorama north. Use '!{0} return' to return back to the original position.";
+
+    KMSelectable[] ProcessTwitchCommand(string commandRaw)
+    {
+        if (correctCountryCode == null)
+        {
+            return null;
+        }
+        commandRaw = commandRaw.Trim().ToLowerInvariant();
+        string[] command = commandRaw.Split(' ');
+        if ((command[0] == "guess" || command[0] == "g") && command.Length >= 2)
+        {
+            for (int i = 0; i < letters.Length; i++)
+            {
+                TextMesh letter = letters[i];
+                string subbedLetter = command[1].ToUpperInvariant().Substring(i, 1);
+                if (subbedLetter != null)
+                {
+                    letter.text = subbedLetter;
+                }
+            }
+            return new[] { guessButton };
+        }
+
+        if (panningAllowed && (command[0] == "pan" || command[0] == "p") && command.Length >= 2)
+        {
+            if (command[1] == "left" || command[1] == "l")
+            {
+                return new[] { panCameraLeftButton };
+            }
+            if (command[1] == "down" || command[1] == "d")
+            {
+                return new[] { panCameraDownButton };
+            }
+            if (command[1] == "up" || command[1] == "u")
+            {
+                return new[] { panCameraUpButton };
+            }
+            if (command[1] == "right" || command[1] == "r")
+            {
+                return new[] { panCameraRightButton };
+            }
+        }
+
+        if (zoomingAllowed && (command[0] == "zoom" || command[0] == "z") && command.Length >= 2)
+        {
+            if (command[1] == "in" || command[1] == "i" || command[1] == "+")
+            {
+                return new[] { zoomInButton };
+            }
+            if (command[1] == "out" || command[1] == "o" || command[1] == "-")
+            {
+                return new[] { zoomOutButton };
+            }
+        }
+
+        if (
+            panningAllowed
+            && zoomingAllowed
+            && (command[0] == "north" || command[0] == "n" || command[0] == "compass")
+        )
+        {
+            return new[] { streetViewCompass };
+        }
+
+        if (
+            (panningAllowed || zoomingAllowed)
+            && (
+                command[0] == "return"
+                || command[0] == "restart"
+                || command[0] == "reset"
+                || command[0] == "r"
+            )
+        )
+        {
+            return new[] { returnToStartButton };
+        }
+
+        return null;
+    }
+
+    void TwitchHandleForcedSolve()
+    {
+        if (correctCountryCode == null)
+        {
+            return;
+        }
+        guess(correctCountryCode);
     }
 }

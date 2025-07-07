@@ -1,11 +1,18 @@
 GeoGuessr 1.0
-Troublesome terms to tell the trained team-member.
+[i]The trees look Polish?![/i]
+Identify the country using GeoGuessr metas
 
-Module ID: geoGuessr
+All locations are hand-picked to be based around the manual.
+If you're an experienced GeoGuessr player, you can play with randomly generated locations by swapping the "Map" option in mod settings using the Tweaks mod. These will NOT be based on the manual.
+
+Module ID: GeoGuessr
 
 Created by: Rawblocky
+Credit to the Plonk It guide for some meta images and locations: https://plonkit.net/
 
-Manual available here: https://ktane.timwi.de/HTML/GeoGuessr.html
+Manual HTML: https://ktane.timwi.de/HTML/GeoGuessr.html
+Manual PDF: https://ktane.timwi.de/PDF/GeoGuessr.pdf
+Manual can also be found in the Manual folder of your game.
 
 ---
 Build 1.0 notes:
