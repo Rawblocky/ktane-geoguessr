@@ -14,15 +14,17 @@ MonoBehaviour:
   id: GeoGuessr
   title: GeoGuessr
   author: Rawblocky
-  description: "GeoGuessr 1.0\r\n[i]The trees look Polish?![/i]\r\nIdentify the country
-    using GeoGuessr metas\r\n\r\nAll locations are hand-picked to be based around
-    the manual.\r\nIf you're an experienced GeoGuessr player, you can play with randomly
-    generated locations by swapping the \"Map\" option in mod settings using the Tweaks
-    mod. These will NOT be based on the manual.\r\n\r\nModule ID: GeoGuessr\r\n\r\nCreated
-    by: Rawblocky\r\nCredit to the Plonk It guide for some meta images and locations:
-    https://plonkit.net/\r\n\r\nManual HTML: https://ktane.timwi.de/HTML/GeoGuessr.html\r\nManual
-    PDF: https://ktane.timwi.de/PDF/GeoGuessr.pdf\r\nManual can also be found in the
-    Manual folder of your game.\r\n\r\n---\r\nBuild 1.0 notes:\r\n- Initial release\r"
-  version: 1.0
+  description: "GeoGuessr 1.0\r1\n[i]The trees look Polish?![/i]\r\nIdentify the country
+    using GeoGuessr metas\r\n\r\nModule ID: GeoGuessr\r\n\r\nCreated by: Rawblocky\r\nCredit
+    to the Plonk It guide for some meta images and locations: https://plonkit.net/\r\n\r\n\r\n[url=https://raw.githubusercontent.com/Rawblocky/ktane-geoguessr/refs/heads/main/Manual/pdfs/Modules/GeoGuessr.pdf]Manual
+    PDF[/url]\r\nManual can also be found in the Manual folder of your game.\r\n\r\n\r\nIf
+    you're an experienced GeoGuessr player, you can play with randomly generated locations
+    by swapping the \"Map\" option in mod settings using the Tweaks mod. These will
+    NOT be based on the manual.\r\n\r\nIf there are any bugs or broken locations,
+    ping me inside of the KTaNE server: Discord is @rawblocky\n\r\n---\r\nBuild 1.01
+    notes:\nUpdated non-default maps listed inside of the \"Map\" mod setting:\n-
+    Add support for Vietnam locations\n- Fix IntersectionGuessr locations not being
+    placed at intersections\n\nBuild 1.0 notes:\r\n- Initial release\r"
+  version: 1.01
   outputFolder: build
   previewImage: {fileID: 2800000, guid: c704c16336d4d2a4f8812a79de4f0025, type: 3}
