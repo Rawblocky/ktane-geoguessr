@@ -144,7 +144,7 @@ public class geoGuessrScript : MonoBehaviour
     private Config<geoGuessrSettings> moduleSettings;
 
     static readonly TweaksEditorSettings TweaksEditorSettings = TweaksEditorSettings
-        .CreateListing("GeoGuessr", "geoGuessr")
+        .CreateListing("GeoGuessr", "GeoGuessr")
         .Register<geoGuessrSettings>()
         .BuildAndClear();
 

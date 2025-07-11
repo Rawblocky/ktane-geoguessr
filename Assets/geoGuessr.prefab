@@ -698,7 +698,7 @@ GameObject:
   - component: {fileID: 114668712514235042}
   - component: {fileID: 114847395405238974}
   m_Layer: 0
-  m_Name: geoGuessr
+  m_Name: GeoGuessr
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4504,7 +4504,7 @@ MonoBehaviour:
   m_Script: {fileID: -119419473, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ModuleType: geoGuessr
+  ModuleType: GeoGuessr
   ModuleDisplayName: GeoGuessr
   RequiresTimerVisibility: 0
 --- !u!114 &114764360389193780
