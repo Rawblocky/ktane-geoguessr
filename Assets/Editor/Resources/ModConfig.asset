@@ -14,21 +14,24 @@ MonoBehaviour:
   id: GeoGuessr
   title: GeoGuessr
   author: Rawblocky
-  description: "GeoGuessr 1.03\n[i]The trees look Polish?![/i]\r\nIdentify the country
+  description: "GeoGuessr 1.04\n[i]The trees look Polish?![/i]\r\nIdentify the country
     using GeoGuessr metas\r\n\r\nModule ID: GeoGuessr\r\n\r\nCreated by: Rawblocky\r\nCredit
-    to the Plonk It guide for some meta images and locations: https://plonkit.net/\r\n\r\n\r\n[url=https://raw.githubusercontent.com/Rawblocky/ktane-geoguessr/refs/heads/main/Manual/pdfs/Modules/GeoGuessr.pdf]Manual
-    PDF[/url]\r\nManual can also be found in the Manual folder of your game.\r\n\r\n\r\nIf
-    you're an experienced GeoGuessr player, you can play with randomly generated locations
-    by swapping the \"Map\" option in mod settings using the Tweaks mod. These will
-    NOT be based on the manual.\r\n\r\nIf there are any bugs or broken locations,
-    ping me inside of the KTaNE server: Discord is @rawblocky\n\r\n---\r\nBuild 1.03
-    notes:\n- Fix module being set as ID \"geoGuessr\" instead of \"GeoGuessr\"\n-
-    Alter formatting in manual\n\nBuild 1.02 notes:\nManual:\n- Fix some countries
-    not being marked as left hand drive\n- Fix Spain bollards image using Estonia
-    bollards instead\nMap:\n- Alter some locations that I thought were too confusing
-    to be more clear\n\nBuild 1.01 notes:\nUpdated non-default maps listed inside
-    of the \"Map\" mod setting:\n- Add support for Vietnam locations\n- Fix IntersectionGuessr
-    locations not being placed at intersections\n\nBuild 1.0 notes:\r\n- Initial release\r"
-  version: 1.03
+    to the Plonk It guide for some meta images and locations: https://plonkit.net/\r\n\r\n[url=https://ktane.timwi.de/HTML/GeoGuessr.html]Manual
+    HTML[/url]\r\n[url=https://ktane.timwi.de/PDF/GeoGuessr.pdf]Manual PDF[/url]\r\nManual
+    can also be found in the Manual folder of your game.\r\n\r\n\r\nIf you're an experienced
+    GeoGuessr player, you can play with randomly generated locations by swapping the
+    \"Map\" option in mod settings using the Tweaks mod. These will NOT be based on
+    the manual.\r\n\r\nIf there are any bugs or broken locations, ping me inside of
+    the KTaNE server: Discord is @rawblocky\r\n\r\n---\r\nBuild 1.04 notes:\n- Fix
+    dropdowns in mod settings\n- Alter a location to make it more clear\n- Lowered
+    amount of offline locations to lower file size\n\nBuild 1.03 notes:\r\n- Fix module
+    being set as ID \"geoGuessr\" instead of \"GeoGuessr\"\r\n- Fix formatting in
+    manual\r\n\r\nBuild 1.02 notes:\r\nManual:\r\n- Fix some countries not being marked
+    as left hand drive\r\n- Fix Spain bollards image using Estonia bollards instead\r\nMap:\r\n-
+    Alter some locations that I thought were too confusing to be more clear\r\n\r\nBuild
+    1.01 notes:\r\nUpdated non-default maps listed inside of the \"Map\" mod setting:\r\n-
+    Add support for Vietnam locations\r\n- Fix IntersectionGuessr locations not being
+    placed at intersections\r\n\r\nBuild 1.0 notes:\r\n- Initial release\r\n"
+  version: 1.04
   outputFolder: build
   previewImage: {fileID: 2800000, guid: c704c16336d4d2a4f8812a79de4f0025, type: 3}
