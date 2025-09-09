@@ -828,7 +828,10 @@ public class geoGuessrScript : MonoBehaviour
         }
         commandRaw = commandRaw.Trim().ToLowerInvariant();
         string[] command = commandRaw.Split(' ');
-        if ((command[0] == "guess" || command[0] == "g") && command.Length >= 2)
+        if (
+            (command[0] == "guess" || command[0] == "g" || command[0] == "submit")
+            && command.Length >= 2
+        )
         {
             for (int i = 0; i < letters.Length; i++)
             {
