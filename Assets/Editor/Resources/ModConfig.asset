@@ -33,6 +33,6 @@ MonoBehaviour:
     notes:\r\nUpdated non-default maps listed inside of the \"Map\" mod setting:\r\n-
     Add support for Vietnam locations\r\n- Fix IntersectionGuessr locations not being
     placed at intersections\r\n\r\nBuild 1.0 notes:\r\n- Initial release\r\n"
-  version: 1.04
+  version: 1.05
   outputFolder: build
   previewImage: {fileID: 2800000, guid: c704c16336d4d2a4f8812a79de4f0025, type: 3}
