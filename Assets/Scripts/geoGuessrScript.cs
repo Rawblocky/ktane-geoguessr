@@ -506,7 +506,7 @@ public class geoGuessrScript : MonoBehaviour
         Texture2D texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
         textureCache[url] = texture;
         newMaterial.mainTexture = texture;
-        Debug.LogFormat("[GeoGuessr #{0}] Loaded online image", moduleId);
+        Debug.LogFormat("[GeoGuessr #{0}] Loaded downloaded image", moduleId);
         SetLocationSettings(locProperties, true, url);
     }
 
